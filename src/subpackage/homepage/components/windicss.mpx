@@ -1,0 +1,21 @@
+<template>
+    <view class="pt-105 flex-space-between">
+      <view class="pl-105" ></view>
+      <view class="text-105rpx"></view>
+    </view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+createComponent({
+  
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+  }
+}
+</script>

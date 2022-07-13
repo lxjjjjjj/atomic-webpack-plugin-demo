@@ -1,0 +1,26 @@
+<template>
+  <view class="w-full bg-primary-light h-102" bindtap="moveToHome">子组件</view>
+</template>
+
+<script>
+import mpx, { createComponent } from '@mpxjs/core'
+
+// <style src="windi-utilities.css"/>
+import HomePage from '../subpackage/home/pages/index.mpx?resolve'
+createComponent({
+  methods: {
+      moveToHome(){
+          mpx.navigateTo({ url: HomePage });
+      }
+  }
+})
+</script>
+</style>
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+
+  }
+}
+</script>

@@ -1,0 +1,37 @@
+<template>
+    <view class="pt-105 flex-space-between">
+      <view class="pl-105" wx:style="{{childStyle}}" wx:style="text-primary-sidebar">xxxxxxx</view>
+      <view class="text-105rpx">yyyyyyyy</view>
+      <!-- <button
+        didi:bg="blue-400 hover:blue-500 dark:blue-500 dark:hover:blue-600"
+        didi:text="sm white"
+        didi:font="mono light"
+        didi:p="y-2 x-4"
+        didi:border="2 rounded blue-200"
+      >
+        Button
+      </button> -->
+    </view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+createComponent({
+  options: {
+    styleIsolation: 'apply-shared'
+  },
+  computed: {
+    childStyle() {
+      return 'text-primary-sidebar'
+    }
+  }
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+  }
+}
+</script>

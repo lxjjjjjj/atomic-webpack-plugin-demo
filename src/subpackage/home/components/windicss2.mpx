@@ -1,0 +1,27 @@
+<template>
+  <view class="w-102 h-102 w-103">zzzzzzzz
+  </view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+// <style src="windi-utilities.css"/>
+createComponent({
+  data: {
+    dataList:[
+
+    ],
+  },
+  options: {
+    styleIsolation: 'apply-shared'
+  },
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+  }
+}
+</script>

@@ -1,0 +1,26 @@
+<template>
+  <view class="w-101 h-101">
+  </view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+createComponent({
+  data: {
+    dataList:[
+
+    ],
+  },
+  options: {
+    styleIsolation: 'apply-shared'
+  },
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+  }
+}
+</script>

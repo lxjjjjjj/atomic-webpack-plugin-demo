@@ -1,0 +1,149 @@
+<template>
+  <view>
+    <view class="pt-15 flex-space-between">
+      <view class="pl-5 text-14px text-black tracking-normal font-pingfangsc-semi leading-32 font-semibold">aaaaa</view>
+      <view class="text-24rpx text-primary-sidebar pr-5" >更多</view>
+    </view>
+    <view class="{{isScrollStyle ? 'flex flex-row items-center justify-start flex-nowrap overflow-scroll h-80':'flex flex-row items-center justify-start flex-wrap'}}">
+      <view class="shrink-0 flex flex-col items-center">
+        <view class="relative">
+          <!-- <image class="h-full w-full" src="{{loadImage ? item.icon : ''}}" binderror="iconOnError"></image> -->
+          <!-- style="{{'width: ' + item.tag.value.length + 'em;'}}" -->
+          <view class="bg-basegrid rounded-7 border-solid border-1 border-white whitespace-nowrap absolute pl-4 pr-4 leading-14 h-14 -right-15px -top-6px max-w-4 text-white text-9px overflow-hidden">
+            bbbbbb
+          </view>
+          <view class="absolute top-2 right-2 w-5 h-5 border-solid border-1 border-white rounded-50 bg-primary-light"></view>
+        </view>
+        <view class="font-pingfangsc-regular text-24rpx text-black overflow-hidden text-ellipsis whitespace-nowrap" >ccccc</view>
+        <view class="text-20rpx text-gray max-w-6 leading-1 overflow-hidden text-ellipsis whitespace-nowrap" >ddddd</view>
+      </view>
+    </view>
+    <swiper indicator-dots="{{false}}" autoplay="{{false}}"  class="h-90">
+      <swiper-item class="flex flex-row items-center justify-start flex-nowrap overflow-scroll h-80"  wx:key="index">
+        <view class="shrink-0 flex flex-col items-center" >
+          <view class="relative">
+            <!-- <image class="h-full w-full" src="{{loadImage ? item.icon : ''}}" binderror="iconOnError"></image> -->
+            <view class="bg-basegrid rounded-7 border-solid border-1 border-white whitespace-nowrap absolute pl-4 pr-4 leading-14 h-14 -right-15px -top-6px max-w-4 text-white text-9px overflow-hidden">
+              eeeeee
+            </view>
+            <view class="absolute top-2 right-2 w-5 h-5 border-solid border-1 border-white rounded-50 bg-primary-light" ></view>
+          </view>
+          <view class="font-pingfangsc-regular text-24rpx text-black overflow-hidden text-ellipsis whitespace-nowrap">ffff</view>
+          <view class="text-20rpx text-gray max-w-6 leading-1 overflow-hidden text-ellipsis whitespace-nowrap" >gggggg</view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+createComponent({
+  data: {
+    dataList:[
+
+    ],
+  },
+  options: {
+    styleIsolation: 'apply-shared'
+  },
+  properties: {
+    title: {
+      type: String,
+      value: '福利乐园'
+    },
+    isSwiper: {
+      type: Boolean,
+      value: false
+    },
+    isScrollStyle: {
+      type: Boolean,
+      value: true
+    },
+    nextMargin: {
+      type: Number,
+      value: 0
+    },
+    titlePaddingBottom: {
+      type: Number,
+      value: 20
+    },
+    iconSize: {
+      type: Number,
+      value: 40
+    },
+    rowNumber: {
+      type: Number,
+      value: 5
+    },
+    rowBottom: {
+      type: Number,
+      value: 0
+    },
+    nameTop: {
+      type: Number,
+      value: 10
+    },
+    marginRight: {
+      type: Number,
+      value: 0
+    },
+    more: {
+      type: String,
+      value: 'more'
+    },
+    loadImage: {
+      type: Boolean,
+      value: false
+    }
+  },
+  computed: {
+    iconStyle() {
+      return `width: ${this.iconSize}px; height: ${this.iconSize}px`
+    },
+    itemStyle() {
+      let width = 100 / this.rowNumber
+      return `width: ${width}%; margin-bottom: ${this.rowBottom}px; margin-right: ${this.marginRight}px`
+    },
+    titleStyle() {
+      return `padding-bottom:${this.titlePaddingBottom}px`
+    },
+    swiperList() {
+      (this.dataList).forEach((item, index) => {
+        item.position = index
+      })
+      let arr = []
+      let page = (this.dataList).length % this.rowNumber > this.rowNumber ? (this.dataList).length / this.rowNumber + 1 : (this.dataList).length / this.rowNumber
+      for (let i = 0; i < page; i++) {
+        arr[i] = (this.dataList).slice(i * this.rowNumber, this.rowNumber * (i + 1))
+      }
+      return arr
+    }
+  },
+  methods: {
+    itemClickHandler (item, index) {
+      this.triggerEvent('itemClick', item, index)
+    },
+    iconOnLoad() {},
+    iconOnError(event) { // 测试使用：iPhone某些机型图片加载不出来(偶现)
+      console.error(event.detail, 'base-grid icon加载失败')
+    },
+    handleSwiperChange(e) {
+      this.triggerEvent('SwiperChange', e)
+    },
+    // TODO 此处 index 类型与 triggerEvent 中 TriggerEventOption 类型不兼容
+    swiperItemClickHandler(e, item, index) {
+      this.triggerEvent('SwiperItemClick', item, index)
+    }
+  }
+})
+</script>
+
+
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+  }
+}
+</script>

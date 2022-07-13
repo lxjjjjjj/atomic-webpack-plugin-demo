@@ -1,0 +1,21 @@
+<template>
+  <component is="windicss" />
+  <component is="windicss2" />
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  let observer
+  createPage({
+    
+  })
+</script>
+
+<script type="application/json">
+  {
+    "usingComponents": {
+      "windicss": "../components/windicss",
+      "windicss2": "../components/windicss2"
+    }
+  }
+</script>

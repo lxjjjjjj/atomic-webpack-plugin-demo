@@ -1,0 +1,28 @@
+<template>
+    <view class="pt-105 flex-space-between">
+      <view class="h-80 bg-primary-red w-full" bindtap="moveToSide">父组件</view>
+      <view class="text-105rpx"></view>
+    </view>
+    <component is="child" />
+</template>
+
+<script>
+import mpx, { createComponent } from '@mpxjs/core'
+import sidebarPage from '../subpackage/sidebar/pages/index.mpx?resolve'
+createComponent({
+  methods: {
+      moveToSide(){
+          mpx.navigateTo({ url: sidebarPage });
+      }
+  }
+})
+</script>
+</style>
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+    "child": "./child"
+  }
+}
+</script>

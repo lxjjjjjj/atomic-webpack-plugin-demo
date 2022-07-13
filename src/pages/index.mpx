@@ -1,0 +1,19 @@
+<template>
+  <view>首页</view>
+  <parent/>
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  createPage({
+    
+  })
+</script>
+
+<script type="application/json">
+  {
+    "usingComponents": {
+        "parent": "../components/parent"
+    }
+  }
+</script>
