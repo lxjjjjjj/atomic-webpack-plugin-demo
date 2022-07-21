@@ -21,7 +21,7 @@
     "@didi/ut-welfarecenter": "^1.3.34",
     "@mpxjs/api-proxy": "^2.7.1",
     "@mpxjs/core": "^2.7.18",
-    "miniprogram-css-webpack-plugin": "^1.0.0-beta",
+    "miniprogram-css-webpack-plugin": "^1.0.0-beta1",
     "sass-loader": "^13.0.0",
     "style-loader": "^2.0.0",
     "vue": "^2.6.10",

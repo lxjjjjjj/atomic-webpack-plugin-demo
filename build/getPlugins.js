@@ -90,9 +90,11 @@ module.exports = function getPlugins (options) {
     plugins.push(new BundleAnalyzerPlugin())
   }
   plugins.push(new MpxAtomicClassWebpackPlugin({
-    include:['dist/wx/home/**/**/*.wxml','dist/wx/sidebar/**/**/*.wxml','dist/wx/homepage/**/**/*.wxml'],
+    include:['home','sidebar','homepage'],
     exclude:['node_modules'],
-    main: 'dist/wx'
+    main: 'dist/wx',
+    templatename: 'wxml',
+    url: 'http://10.85.128.89:8000/biz-fe/bisheng-server/gulfstream/bisheng/openapi/template/version/latest?key=I7317ciMe_'
   }))
   return plugins
 }

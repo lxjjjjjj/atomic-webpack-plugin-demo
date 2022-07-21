@@ -1,6 +1,8 @@
 const fastGlob = require('fast-glob')
 const fs = require('fs')
 const path = require('path')
+const http = require('http')
+var windicss = require("windicss");
 var import_style = require("windicss/utils/style");
 var import_utils3 = require("@antfu/utils");
 const regexHtmlTag = /<(\w[\w-]*)([\S\s]*?)\/?>/mg;
@@ -12,9 +14,6 @@ var regexClassChecks = [
   regexClassCheck1,
   regexClassCheck2
 ];
-const windiConfig = require('../windi.config.js')
-var windicss = require("windicss");
-const processor = new windicss(windiConfig);
 let classesPending = /* @__PURE__ */ {};
 const classesGenerated = /* @__PURE__ */ {};
 const layerStylesMap = /* @__PURE__ */ {};
@@ -26,11 +25,13 @@ const layers = {
 let dirs = []
 let commonDir = []
 const attributes = [];
+let windiConfigMap = {}
 function validClassName(i) {
     return regexClassChecks.every((r) => i.length > 2 && i.match(r));
 }
 function getFiles(options) {
-    const files = fastGlob.sync(options.include, {
+    const include = options.include.map(option => options.main + '/' + option + '/**/**/*.' + options.templatename)
+    const files = fastGlob.sync(include, {
       ignore: options.exclude,
       onlyFiles: true,
       absolute: true
@@ -118,7 +119,7 @@ function addClasses(classes, dir, file) {
 }
 async function extractFileLoader(code, dir, file) {
   const extractResult = await applyExtractors(code);
-  if (windiConfig.attributify) {
+  if (windiConfigMap[dir].attributify) {
     const extractedAttrs = extractResult.attributes;
     if (extractedAttrs == null ? void 0 : extractedAttrs.names.length) {
       extractedAttrs.names.forEach((name2, i) => {
@@ -137,11 +138,11 @@ async function extractFileLoader(code, dir, file) {
 function buildLayerCss(layer,dir) {
     var _a;
     const style = new import_style.StyleSheet(Array.from(layerStylesMap[dir].values()).flatMap((i) => i).filter((i) => i.meta.type === layer));
-    style.prefixer = (_a = windiConfig.prefixer) != null ? _a : true;
+    style.prefixer = (_a = windiConfigMap[dir].prefixer) != null ? _a : true;
     return `${style.build()}`
 }
 async function buildPendingStyles(dir) {
-  var _a, _b;
+  const processor = new windicss(windiConfigMap[dir]);
   if(!classesPending[dir]){
     classesPending[dir] = new Set()
   }
@@ -173,19 +174,19 @@ async function buildPendingStyles(dir) {
       }
     }
   }
-  // if (windiConfig.attributify) {
-  //   if (attributes.length) {
-  //     const attributesObject = {};
-  //     attributes.filter((i) => i[0] && i[1]).forEach(([name2, value]) => {
-  //       if (!attributesObject[name2])
-  //         attributesObject[name2] = [];
-  //       attributesObject[name2].push(...String(value).split(regexClassSplitter).filter(Boolean));
-  //     });
-  //     const attributifyStyle = processor.attributify(attributesObject);
-  //     updateLayers(attributifyStyle.styleSheet.children, "__attributify", dir, false);
-  //     attributes.length = 0;
-  //   }
-  // }
+  if (windiConfigMap[dir].attributify) {
+    if (attributes.length) {
+      const attributesObject = {};
+      attributes.filter((i) => i[0] && i[1]).forEach(([name2, value]) => {
+        if (!attributesObject[name2])
+          attributesObject[name2] = [];
+        attributesObject[name2].push(...String(value).split(regexClassSplitter).filter(Boolean));
+      });
+      const attributifyStyle = processor.attributify(attributesObject);
+      updateLayers(attributifyStyle.styleSheet.children, "__attributify", dir, false);
+      attributes.length = 0;
+    }
+  }
 }
 async function generateCSS(layer,dir) {
   await buildPendingStyles(dir);
@@ -209,30 +210,32 @@ function getCommonClass(main){
   },{})
 }
 function relativeFilePath(a, b) {
+  console.log('relativeFilePath a', a)
+  console.log('relativeFilePath b', b)
   return new Array((a.split('/').length - b.split('/').length)).fill('../').join('')
 }
-// function attributify(files) {
-//   // attributify mode
-//   files.forEach(function (file) {
-//       var parser = new index_ts$2.HTMLParser(fs$8.readFileSync(file).toString());
-//       var attrs = parser
-//           .parseAttrs()
-//           .reduceRight(function (a, b) {
-//           var _a;
-//           if (b.key === 'class' || b.key === 'className')
-//               return a;
-//           if (b.key in a) {
-//               a[b.key] = Array.isArray(a[b.key])
-//                   ? Array.isArray(b.value) ? __spreadArray(__spreadArray([], a[b.key], true), b.value, true) : __spreadArray(__spreadArray([], a[b.key], true), [b.value], false)
-//                   : __spreadArray([a[b.key]], (Array.isArray(b.value) ? b.value : [b.value]), true);
-//               return a;
-//           }
-//           return Object.assign(a, (_a = {}, _a[b.key] = b.value, _a));
-//       }, {});
-//       var utility = processor.attributify(attrs);
-//       styleSheets[file] = utility.styleSheet;
-//   });
-// }
+async function getConfig(dirs, main) {
+  const copyDirs = dirs.map(dir => dir)
+  copyDirs.push("dist")
+  return Promise.all(copyDirs.map(dir=>{
+    return new Promise((resolve, reject) => {
+      http.get(`http://10.85.128.89:8000/biz-fe/bisheng-server/gulfstream/bisheng/openapi/template/version/latest?key=I7317ciMe_${dir}`, res => {
+        let list = [];
+        res.on('data', chunk => {
+            list.push(chunk);
+        });
+        res.on('end', () => {
+            const { data } = JSON.parse(Buffer.concat(list).toString());
+            if(dir === 'dist') dir = main
+            windiConfigMap[dir] = data.template
+            resolve()
+        });
+      }).on('error', err => {
+        reject(err)
+      });
+    })
+  }))
+}
 class MpxAtomicClassWebpackPlugin {
     constructor(options = {}) { // include exclude
       this.options = options
@@ -240,13 +243,14 @@ class MpxAtomicClassWebpackPlugin {
     apply(compiler) {
       compiler.hooks.done.tap('MpxAtomicClassWebpackPlugin',async () => {
         const files = getFiles(this.options)
+        console.log('__dirname', __dirname)
         const absoluteDirs = []
-        dirs = this.options.include.map(dir => {
-          return dir.split('/').splice(0,3).join('/')
-        })
+        dirs = this.options.include
         dirs.forEach(dir => {
-          absoluteDirs.push(path.join(__dirname, '../',dir))
+          absoluteDirs.push(path.join(__dirname, '../../', this.options.main ,dir))
         })
+        console.log('absoluteDirs', absoluteDirs)
+        await getConfig(dirs, this.options.main)
         await Promise.all(dirs.map(async dir => { 
           layerStylesMap[dir] = new Map()
           return Promise.all(files.map(async file => {
@@ -264,11 +268,12 @@ class MpxAtomicClassWebpackPlugin {
           const cssData = await generateCSS('utilities', dir)
           let importStr = ''
           if(commonDir.includes(dir)){
-            importStr = `@import '${relativeFilePath(dir, this.options.main)}index.wxss';\n`
+            importStr = `@import '${relativeFilePath(this.options.main + '/' + dir, this.options.main)}index.wxss';\n`
           }
-          dir && fs.writeFile(`${dir}/index.wxss`, importStr + cssData, (err)=>{
+          let writePath = this.options.main === dir ? `${dir}/index.wxss` : `${this.options.main}/${dir}/index.wxss`
+          dir && fs.writeFile(writePath, importStr + cssData, (err)=>{
             if(err){
-                console.log('err',err)
+              console.log('generateCSS err',err)
             }
           })
         })
@@ -276,10 +281,11 @@ class MpxAtomicClassWebpackPlugin {
           let cssFile = file.split('/').splice(0, file.split('/').length-1).join('/') 
           const dirPath = absoluteDirs.filter(dir => file.includes(dir))[0]
           const importFile = relativeFilePath(cssFile , dirPath)
+          console.log('importFile', importFile)
           cssFile = cssFile + '/index.wxss'
           fs.writeFile(cssFile, `@import '${importFile}index.wxss';\n`, (err)=>{
             if(err){
-              console.log('err', err)
+              console.log('write err', err)
             }
           })
         })
